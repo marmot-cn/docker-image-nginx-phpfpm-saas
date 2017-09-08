@@ -124,3 +124,11 @@
 		
 吞吐率(Requests per second):3529.20
 失败的请求数: 0
+
+#### 废弃, 不在更新
+
+统一转移为:
+
+* 前端服务层镜像
+* 通用服务层镜像
+* [后端服务层镜像](https://github.com/chloroplast1983/docker-image-nginx-end)
