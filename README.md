@@ -125,6 +125,69 @@
 吞吐率(Requests per second):3529.20
 失败的请求数: 0
 
+
+#### 1.4
+
+##### fastCGI参数优化
+
+* `fastcgi_connect_timeout`: 指定连接到后端FastCGI的超时时间.
+* `fastcgi_send_timeout`: 指定向FastCGI传送请求的超时时间.
+* `fastcgi_read_timeout`: 指定接收FastCGI应答的超时时间.这个值是已经完成两次握手后接收FastCGI应答的超时时间
+
+解决`504`超时问题. `504`是`nginx`超时. `502`是`phpfpm`超时.
+
+#### 禁止显示`nginx`版本
+
+`server_tokens off;`
+
+#### 添加安全策略(未更新):
+
+1. 忽略`favicon.ico`
+2. 禁止代码文件夹
+3. 禁止隐藏文件夹
+4. 禁止其他文件
+5. 禁止一些底层的具体文件
+6. 路由php, 只解析`index.php`
+7. 禁止显示nginx版本信息在`nginx.conf`中`server_tokens off;`
+8. 修改`client_max_body_size`,因为只在后端做接口传输数据.缩小和`php`限制一样`5MB`
+
+```shell
+# 忽略favicon.ico, 不记录日志 
+location = /favicon.ico {
+    log_not_found off;
+    access_log off;
+}
+# 禁止tests, vendor, conf, database, deployment, Cli, smartfunc, Docs, Application, System
+location ~ /(tests|vendor|conf|deployment|Cli|database|Application|System|Docs|smartfunc)/ {
+    deny all;
+}
+
+# 禁止隐藏文件比如 .git
+location ~ /\. {
+    deny all;
+}
+
+# 禁止所有其他文件
+location ~ ^/.*\.(xml|md|json|yml|cache|sh|toml|lock|sql|php) {
+    deny all;
+}
+
+# 禁止所有具体文件,不区分大小写
+location ~* /(smart|VERSION|Dockerfile|EventHandler|Jenkinsfile|marmot) {
+   deny all;
+}
+
+location = /index.php {
+     root           /var/www/html;
+ fastcgi_index  index.php;
+     fastcgi_pass   phpfpm:9000;
+     fastcgi_param  SCRIPT_FILENAME /var/www/html/$fastcgi_script_name;
+     include        /etc/nginx/fastcgi_params;
+}
+```
+
+**废弃, 把框架的`index.php`放到干净的`public`目录下. 同时设定为`nginx`的`root`.这样`nginx`可以更少的禁止不需要访问的文件.
+
 #### 废弃, 不在更新
 
 统一转移为:
