@@ -192,6 +192,5 @@ location = /index.php {
 
 统一转移为:
 
-* 前端服务层镜像
-* 通用服务层镜像
+* [前端服务层镜像](https://github.com/chloroplast1983/docker-image-nginx-front)
 * [后端服务层镜像](https://github.com/chloroplast1983/docker-image-nginx-end)
